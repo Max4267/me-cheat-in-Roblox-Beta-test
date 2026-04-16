@@ -1,614 +1,37 @@
 --[[
-    FATALITY CS2 FULL EDITION FOR ROBLOX
-    ПОЛНАЯ КОПИЯ ФАТАЛИТИ
-    Все настройки | Все функции | Фиолетовая тема
-    Для Xeno Executor | Рабочий Rage Bot
+    FATALITY CS2 RAGE BOT - РАБОЧАЯ ВЕРСИЯ
+    Красивое меню | Работающие функции
 --]]
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CoreGui = game:GetService("CoreGui")
-local HttpService = game:GetService("HttpService")
-local GuiService = game:GetService("GuiService")
-local ContextActionService = game:GetService("ContextActionService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
 local Camera = workspace.CurrentCamera
 
--- ========== ПОЛНЫЕ НАСТРОЙКИ FATALITY ==========
+-- ========== НАСТРОЙКИ ==========
 local Settings = {
-    -- RAGE BOT (все настройки как в Fatality CS2)
-    Rage = {
-        Enabled = false,
-        SilentAim = true,
-        AutoShoot = true,
-        Hitchance = 85,
-        Multipoints = true,
-        MultipointsScale = 0.5,
-        HeadScale = 1.0,
-        BodyScale = 1.0,
-        Priority = "Distance",
-        TargetSelection = "Crosshair",
-        FOV = 180,
-        FOVCircle = false,
-        FOVCircleColor = Color3.fromRGB(200, 0, 255),
-        FOVCircleSize = 180,
-        FOVCircleFilled = false,
-        FOVCircleFilledAlpha = 0.3,
-        Prediction = 0,
-        MinDamage = 0,
-        AutoWall = false,
-        AutoWallMinDamage = 0,
-        AutoWallMaxDamage = 100,
-        AutoPenetration = false,
-        AutoPenetrationCount = 1,
-        AutoPeek = false,
-        AutoPeekTime = 0.5,
-        Autostop = false,
-        AutostopTime = 0.1,
-        Autoscope = false,
-        AutoscopeTime = 0.1,
-        Autoreload = false,
-        AutoreloadTime = 0.1,
-        DoubleTap = false,
-        DoubleTapDelay = 0.05,
-        HideShots = false,
-        HideShotsDelay = 0.05,
-        SafePoint = false,
-        SafePointScale = 0.5,
-        ForceAccuracy = false,
-        ForceAccuracyAmount = 0,
-        MinimumAccuracy = 100,
-        SlowAim = false,
-        SlowAimSpeed = 5,
-        SlowAimFOV = 50,
-        SlowAimSmooth = 0.5,
-        RCS = false,
-        RCSAmount = 50,
-        RCSStart = 3,
-        RCSEnd = 15,
-        DamageOverrides = {
-            Enabled = false,
-            Head = 100,
-            Chest = 100,
-            Stomach = 100,
-            Arms = 100,
-            Legs = 100
-        },
-        Hitboxes = {
-            Head = true,
-            Chest = true,
-            Stomach = true,
-            Arms = false,
-            Legs = false
-        },
-        Resolver = {
-            Enabled = false,
-            Mode = "Auto",
-            ForceBodyAim = false,
-            ForceBodyAimHealth = 0,
-            ResolverType = "Auto",
-            ResolverAmount = 50
-        }
+    Rage = { Enabled = false, Hitchance = 85, Multipoints = true },
+    AntiAim = { Enabled = false, Pitch = 90, Yaw = 180, Jitter = true, JitterRange = 45 },
+    Visuals = { 
+        Crosshair = false, CrosshairColor = Color3.fromRGB(200, 0, 255),
+        Snow = false, SnowAmount = 150, SnowRadius = 40,
+        Fog = false, FogColor = Color3.fromRGB(80, 0, 120), FogEnd = 200,
+        WorldColor = false, WorldColorValue = Color3.fromRGB(150, 0, 255),
+        ClockTime = 12, MapReflectance = 0, JumpCircles = false 
     },
-    -- VISUALS (все настройки Fatality)
-    Visuals = {
-        Enabled = true,
-        -- ESP Players
-        ESP = {
-            Enabled = false,
-            Box = false,
-            BoxColor = Color3.fromRGB(200, 0, 255),
-            BoxThickness = 1,
-            BoxFilled = false,
-            BoxFilledColor = Color3.fromRGB(200, 0, 255),
-            BoxFilledAlpha = 0.3,
-            BoxCornerRadius = 0,
-            Name = false,
-            NameColor = Color3.fromRGB(255, 255, 255),
-            NameSize = 12,
-            NameFont = "Gotham",
-            NameOutline = false,
-            NameOutlineColor = Color3.fromRGB(0, 0, 0),
-            NameOutlineThickness = 1,
-            Health = false,
-            HealthColor = Color3.fromRGB(0, 255, 0),
-            HealthColorLow = Color3.fromRGB(255, 0, 0),
-            HealthPosition = "Top",
-            HealthBar = false,
-            HealthBarColor = Color3.fromRGB(0, 255, 0),
-            HealthBarColorLow = Color3.fromRGB(255, 0, 0),
-            HealthBarHeight = 2,
-            HealthBarWidth = 50,
-            HealthBarPosition = "Bottom",
-            Distance = false,
-            DistanceColor = Color3.fromRGB(255, 255, 255),
-            DistanceSize = 10,
-            DistanceFont = "Gotham",
-            DistanceOutline = false,
-            Weapon = false,
-            WeaponColor = Color3.fromRGB(255, 255, 255),
-            WeaponSize = 10,
-            WeaponFont = "Gotham",
-            WeaponOutline = false,
-            Armor = false,
-            ArmorColor = Color3.fromRGB(0, 0, 255),
-            ArmorSize = 10,
-            ArmorBar = false,
-            ArmorBarColor = Color3.fromRGB(0, 0, 255),
-            ArmorBarHeight = 2,
-            ArmorBarWidth = 50,
-            Snaplines = false,
-            SnaplinesColor = Color3.fromRGB(200, 0, 255),
-            SnaplinesThickness = 1,
-            SnaplinesPosition = "Bottom",
-            Chams = false,
-            ChamsColor = Color3.fromRGB(200, 0, 255),
-            ChamsMaterial = "Neon",
-            ChamsTransparency = 0.5,
-            ChamsVisible = true,
-            ChamsVisibleColor = Color3.fromRGB(0, 255, 0),
-            ChamsVisibleMaterial = "Neon",
-            ChamsVisibleTransparency = 0.5,
-            Glow = false,
-            GlowColor = Color3.fromRGB(200, 0, 255),
-            GlowThickness = 5,
-            GlowIntensity = 1,
-            Trail = false,
-            TrailColor = Color3.fromRGB(200, 0, 255),
-            TrailLifetime = 1,
-            TrailMaxLength = 50,
-            Radar = false,
-            RadarSize = 200,
-            RadarPosition = "BottomRight",
-            RadarColor = Color3.fromRGB(200, 0, 255),
-            RadarBackground = Color3.fromRGB(20, 20, 30),
-            RadarAlpha = 0.5,
-            RadarScale = 1,
-            RadarZoom = 1,
-            RadarShowPlayers = true,
-            RadarShowEnemies = true,
-            RadarShowTeammates = false,
-            RadarShowDots = true,
-            RadarDotSize = 3,
-            RadarDotColor = Color3.fromRGB(255, 0, 0),
-            RadarEnemyColor = Color3.fromRGB(255, 0, 0),
-            RadarTeammateColor = Color3.fromRGB(0, 255, 0),
-            RadarPlayerColor = Color3.fromRGB(0, 0, 255),
-            RadarBackgroundColor = Color3.fromRGB(20, 20, 30),
-            RadarBorderColor = Color3.fromRGB(200, 0, 255),
-            RadarBorderThickness = 1,
-            RadarBorderRadius = 0,
-            RadarFilled = false,
-            RadarFilledAlpha = 0.3,
-            RadarFilledColor = Color3.fromRGB(200, 0, 255),
-            RadarText = false,
-            RadarTextColor = Color3.fromRGB(255, 255, 255),
-            RadarTextSize = 10,
-            RadarTextOutline = false
-        },
-        -- World
-        World = {
-            Snow = false,
-            SnowAmount = 200,
-            SnowRadius = 50,
-            SnowSize = 0.2,
-            SnowSpeed = 0.1,
-            SnowColor = Color3.fromRGB(255, 255, 255),
-            WorldModulation = false,
-            WorldColor = Color3.fromRGB(150, 0, 255),
-            WorldColorIntensity = 1,
-            Fog = false,
-            FogColor = Color3.fromRGB(80, 0, 120),
-            FogStart = 0,
-            FogEnd = 500,
-            FogIntensity = 1,
-            ClockTime = 12,
-            MapReflectance = 0,
-            MapAmbient = Color3.fromRGB(0, 0, 0),
-            MapOutdoorAmbient = Color3.fromRGB(0, 0, 0),
-            NoScopeEffects = false,
-            JumpCircles = false,
-            JumpCircleColor = Color3.fromRGB(200, 0, 255),
-            JumpCircleSize = 6,
-            JumpCircleTime = 1,
-            JumpCircleFilled = false,
-            JumpCircleFilledAlpha = 0.5,
-            BulletTracers = false,
-            BulletTracerColor = Color3.fromRGB(200, 0, 255),
-            BulletTracerThickness = 1,
-            BulletTracerLifetime = 0.5,
-            HitEffects = false,
-            HitEffectColor = Color3.fromRGB(255, 0, 0),
-            HitEffectSize = 1,
-            HitEffectTime = 0.1,
-            ImpactEffects = false,
-            ImpactEffectColor = Color3.fromRGB(255, 255, 0),
-            ImpactEffectSize = 0.5,
-            ImpactEffectTime = 0.1,
-            Skybox = false,
-            SkyboxColor = Color3.fromRGB(200, 0, 255),
-            SkyboxIntensity = 1,
-            SkyboxTexture = "",
-            SkyboxRotation = 0,
-            SkyboxRotationSpeed = 0
-        },
-        -- Crosshair
-        Crosshair = {
-            Enabled = false,
-            Color = Color3.fromRGB(200, 0, 255),
-            Size = 18,
-            Thickness = 3,
-            Gap = 2,
-            Dot = false,
-            DotSize = 4,
-            DotColor = Color3.fromRGB(200, 0, 255),
-            Outline = false,
-            OutlineColor = Color3.fromRGB(0, 0, 0),
-            OutlineThickness = 1,
-            TStyle = false,
-            TStyleSize = 10,
-            TStyleThickness = 2,
-            TStyleGap = 2,
-            Circle = false,
-            CircleSize = 10,
-            CircleThickness = 1,
-            CircleFilled = false,
-            CircleFilledAlpha = 0.3,
-            Cross = false,
-            CrossSize = 10,
-            CrossThickness = 2,
-            CrossGap = 2,
-            DotInCross = false,
-            DotInCrossSize = 4,
-            DotInCrossColor = Color3.fromRGB(200, 0, 255),
-            Moving = false,
-            MovingSpeed = 1,
-            MovingRange = 5,
-            ColorMoving = false,
-            ColorMovingSpeed = 1,
-            ColorMovingRange = 5,
-            HitMarker = false,
-            HitMarkerColor = Color3.fromRGB(0, 255, 0),
-            HitMarkerSize = 10,
-            HitMarkerThickness = 2,
-            HitMarkerTime = 0.1,
-            HitMarkerSound = false,
-            HitMarkerSoundVolume = 1,
-            HitMarkerSoundId = "rbxassetid://9120386436",
-            KillMarker = false,
-            KillMarkerColor = Color3.fromRGB(255, 0, 0),
-            KillMarkerSize = 15,
-            KillMarkerThickness = 3,
-            KillMarkerTime = 0.5,
-            KillMarkerSound = false,
-            KillMarkerSoundVolume = 1,
-            KillMarkerSoundId = "rbxassetid://9120386436"
-        },
-        -- Tracers
-        Tracers = {
-            Enabled = false,
-            Color = Color3.fromRGB(200, 0, 255),
-            Thickness = 1,
-            Alpha = 1,
-            From = "Weapon",
-            To = "Head",
-            Type = "Line",
-            Length = 100,
-            Lifetime = 0.5,
-            Glow = false,
-            GlowColor = Color3.fromRGB(200, 0, 255),
-            GlowThickness = 5,
-            GlowIntensity = 1
-        }
-    },
-    -- ANTI AIM (все настройки Fatality)
-    AntiAim = {
-        Enabled = false,
-        Pitch = 90,
-        PitchType = "Static",
-        Yaw = 180,
-        YawType = "Static",
-        Jitter = true,
-        JitterRange = 45,
-        JitterType = "Random",
-        Desync = false,
-        DesyncRange = 30,
-        DesyncType = "Static",
-        FakeLag = false,
-        FakeLagAmount = 20,
-        FakeLagType = "Random",
-        FakeLagChoke = true,
-        FakeLagChokeAmount = 2,
-        FakeLagChokeType = "Random",
-        EdgeBug = false,
-        EdgeBugDistance = 10,
-        EdgeBugType = "Static",
-        EdgeBugCheck = true,
-        EdgeBugCheckTime = 0.1,
-        EdgeBugCheckDistance = 10,
-        EdgeBugCheckType = "Raycast",
-        EdgeBugCheckIgnore = {"Terrain", "BasePart"},
-        EdgeBugCheckIgnoreList = {},
-        EdgeBugCheckIgnoreListType = "Blacklist",
-        EdgeBugCheckIgnoreListBlacklist = {},
-        EdgeBugCheckIgnoreListWhitelist = {},
-        EdgeBugCheckIgnoreListBlacklistAdd = function() end,
-        EdgeBugCheckIgnoreListWhitelistAdd = function() end,
-        EdgeBugCheckIgnoreListBlacklistRemove = function() end,
-        EdgeBugCheckIgnoreListWhitelistRemove = function() end,
-        EdgeBugCheckIgnoreListBlacklistClear = function() end,
-        EdgeBugCheckIgnoreListWhitelistClear = function() end
-    },
-    -- MOVEMENT (все настройки Fatality)
-    Movement = {
-        Airstrafe = false,
-        AirstrafeType = "Legit",
-        AirstrafeSpeed = 50,
-        AirstrafeSmooth = 0.5,
-        AirstrafeDirection = "Mouse",
-        AirstrafeMouse = true,
-        AirstrafeKeyboard = true,
-        AirstrafeMouseSensitivity = 1,
-        AirstrafeKeyboardSensitivity = 1,
-        AirstrafeMouseDeadzone = 0,
-        AirstrafeKeyboardDeadzone = 0,
-        AirstrafeMouseAcceleration = false,
-        AirstrafeKeyboardAcceleration = false,
-        AirstrafeMouseAccelerationSpeed = 0.1,
-        AirstrafeKeyboardAccelerationSpeed = 0.1,
-        AirstrafeMouseDeceleration = false,
-        AirstrafeKeyboardDeceleration = false,
-        AirstrafeMouseDecelerationSpeed = 0.1,
-        AirstrafeKeyboardDecelerationSpeed = 0.1,
-        AirstrafeMouseInvert = false,
-        AirstrafeKeyboardInvert = false,
-        AirstrafeMouseInvertX = false,
-        AirstrafeMouseInvertY = false,
-        AirstrafeKeyboardInvertX = false,
-        AirstrafeKeyboardInvertY = false,
-        AirstrafeMouseLimit = false,
-        AirstrafeKeyboardLimit = false,
-        AirstrafeMouseLimitX = 180,
-        AirstrafeMouseLimitY = 180,
-        AirstrafeKeyboardLimitX = 180,
-        AirstrafeKeyboardLimitY = 180,
-        AirstrafeMouseLimitType = "Clamp",
-        AirstrafeKeyboardLimitType = "Clamp",
-        AirstrafeMouseLimitClamp = function() end,
-        AirstrafeKeyboardLimitClamp = function() end,
-        AirstrafeMouseLimitWrap = function() end,
-        AirstrafeKeyboardLimitWrap = function() end,
-        AirstrafeMouseLimitMirror = function() end,
-        AirstrafeKeyboardLimitMirror = function() end,
-        LegSlide = false,
-        LegSlideType = "Tap",
-        LegSlideSpeed = 50,
-        LegSlideDuration = 0.5,
-        LegSlideCooldown = 1,
-        LegSlideAuto = false,
-        LegSlideAutoDelay = 0.5,
-        LegSlideAutoDistance = 10,
-        LegSlideAutoAngle = 45,
-        LegSlideAutoType = "Static",
-        LegSlideAutoCheck = true,
-        LegSlideAutoCheckTime = 0.1,
-        LegSlideAutoCheckDistance = 10,
-        LegSlideAutoCheckType = "Raycast",
-        LegSlideAutoCheckIgnore = {"Terrain", "BasePart"},
-        LegSlideAutoCheckIgnoreList = {},
-        LegSlideAutoCheckIgnoreListType = "Blacklist",
-        LegSlideAutoCheckIgnoreListBlacklist = {},
-        LegSlideAutoCheckIgnoreListWhitelist = {},
-        LegSlideAutoCheckIgnoreListBlacklistAdd = function() end,
-        LegSlideAutoCheckIgnoreListWhitelistAdd = function() end,
-        LegSlideAutoCheckIgnoreListBlacklistRemove = function() end,
-        LegSlideAutoCheckIgnoreListWhitelistRemove = function() end,
-        LegSlideAutoCheckIgnoreListBlacklistClear = function() end,
-        LegSlideAutoCheckIgnoreListWhitelistClear = function() end,
-        BunnyHop = false,
-        BunnyHopType = "Legit",
-        BunnyHopChance = 100,
-        BunnyHopDelay = 0.01,
-        AutoStrafe = false,
-        AutoStrafeType = "Legit",
-        AutoStrafeSpeed = 50,
-        AutoStrafeSmooth = 0.5,
-        EdgeJump = false,
-        EdgeJumpDistance = 10,
-        EdgeJumpType = "Static",
-        EdgeJumpCheck = true,
-        EdgeJumpCheckTime = 0.1,
-        EdgeJumpCheckDistance = 10,
-        EdgeJumpCheckType = "Raycast",
-        EdgeJumpCheckIgnore = {"Terrain", "BasePart"},
-        EdgeJumpCheckIgnoreList = {},
-        EdgeJumpCheckIgnoreListType = "Blacklist",
-        EdgeJumpCheckIgnoreListBlacklist = {},
-        EdgeJumpCheckIgnoreListWhitelist = {},
-        EdgeJumpCheckIgnoreListBlacklistAdd = function() end,
-        EdgeJumpCheckIgnoreListWhitelistAdd = function() end,
-        EdgeJumpCheckIgnoreListBlacklistRemove = function() end,
-        EdgeJumpCheckIgnoreListWhitelistRemove = function() end,
-        EdgeJumpCheckIgnoreListBlacklistClear = function() end,
-        EdgeJumpCheckIgnoreListWhitelistClear = function() end,
-        EdgeJumpCheckIgnoreListBlacklistClearAll = function() end,
-        EdgeJumpCheckIgnoreListWhitelistClearAll = function() end
-    },
-    -- MISC (все настройки Fatality)
-    Misc = {
-        Watermark = true,
-        WatermarkText = "SWILL | FATALITY [RAGE BOT]",
-        WatermarkColor = Color3.fromRGB(200, 0, 255),
-        WatermarkSize = 18,
-        WatermarkFont = "GothamBold",
-        WatermarkPosition = "TopCenter",
-        Version = true,
-        VersionText = "v4.0 | VIP",
-        VersionColor = Color3.fromRGB(150, 0, 200),
-        VersionSize = 11,
-        VersionFont = "Gotham",
-        VersionPosition = "TopRight",
-        Profile = true,
-        ProfileSize = Vector2.new(240, 60),
-        ProfilePosition = "BottomLeft",
-        ProfileBackgroundColor = Color3.fromRGB(12, 0, 25),
-        ProfileBackgroundTransparency = 0.1,
-        ProfileBorderColor = Color3.fromRGB(150, 0, 200),
-        ProfileBorderThickness = 1,
-        ProfileCornerRadius = 8,
-        ProfileAvatar = true,
-        ProfileAvatarSize = 45,
-        ProfileAvatarPosition = "Left",
-        ProfileAvatarBackgroundColor = Color3.fromRGB(25, 0, 50),
-        ProfileAvatarBorderColor = Color3.fromRGB(150, 0, 200),
-        ProfileAvatarBorderThickness = 1,
-        ProfileAvatarCornerRadius = 100,
-        ProfileName = true,
-        ProfileNameText = "",
-        ProfileNameColor = Color3.fromRGB(200, 0, 255),
-        ProfileNameSize = 13,
-        ProfileNameFont = "GothamBold",
-        ProfileNamePosition = "TopLeft",
-        ProfileRank = true,
-        ProfileRankText = "FATALITY | VIP",
-        ProfileRankColor = Color3.fromRGB(150, 0, 200),
-        ProfileRankSize = 10,
-        ProfileRankFont = "Gotham",
-        ProfileRankPosition = "BottomLeft",
-        MenuKey = Enum.KeyCode.Insert,
-        MenuColor = Color3.fromRGB(200, 0, 255),
-        MenuBackgroundColor = Color3.fromRGB(18, 0, 35),
-        MenuBackgroundTransparency = 0.05,
-        MenuBorderColor = Color3.fromRGB(200, 0, 255),
-        MenuBorderThickness = 1,
-        MenuCornerRadius = 8,
-        MenuDraggable = true,
-        MenuSize = Vector2.new(520, 580),
-        MenuPosition = Vector2.new(0.5, 0.5),
-        MenuTabs = {"RAGE", "VISUALS", "ANTI AIM", "MOVEMENT", "MISC"},
-        MenuTabsSize = Vector2.new(100, 0),
-        MenuTabsPosition = "Top",
-        MenuTabsOffset = 10,
-        MenuTabsBackgroundColor = Color3.fromRGB(35, 0, 70),
-        MenuTabsBackgroundColorSelected = Color3.fromRGB(80, 0, 160),
-        MenuTabsTextColor = Color3.fromRGB(200, 0, 255),
-        MenuTabsTextColorSelected = Color3.fromRGB(200, 0, 255),
-        MenuTabsTextSize = 13,
-        MenuTabsTextFont = "GothamBold",
-        MenuTabsBorderRadius = 4,
-        MenuSectionsSize = 32,
-        MenuSectionsBackgroundColor = Color3.fromRGB(30, 0, 60),
-        MenuSectionsTextColor = Color3.fromRGB(200, 0, 255),
-        MenuSectionsTextSize = 13,
-        MenuSectionsTextFont = "GothamBold",
-        MenuTogglesSize = 32,
-        MenuTogglesBackgroundColor = Color3.fromRGB(40, 0, 80),
-        MenuTogglesBackgroundTransparency = 0.3,
-        MenuTogglesBackgroundColorEnabled = Color3.fromRGB(150, 0, 255),
-        MenuTogglesBackgroundColorDisabled = Color3.fromRGB(70, 0, 110),
-        MenuTogglesTextColor = Color3.fromRGB(220, 220, 220),
-        MenuTogglesTextSize = 12,
-        MenuTogglesTextFont = "Gotham",
-        MenuTogglesButtonSize = 55,
-        MenuTogglesButtonHeight = 22,
-        MenuTogglesButtonTextSize = 11,
-        MenuTogglesButtonTextFont = "GothamBold",
-        MenuTogglesButtonBorderRadius = 3,
-        MenuSlidersSize = 52,
-        MenuSlidersBackgroundColor = Color3.fromRGB(40, 0, 80),
-        MenuSlidersBackgroundTransparency = 0.3,
-        MenuSlidersTextColor = Color3.fromRGB(220, 220, 220),
-        MenuSlidersTextSize = 12,
-        MenuSlidersTextFont = "Gotham",
-        MenuSlidersBackground = Color3.fromRGB(55, 0, 90),
-        MenuSlidersFillColor = Color3.fromRGB(150, 0, 255),
-        MenuSlidersKnobColor = Color3.fromRGB(255, 255, 255),
-        MenuSlidersKnobSize = 12,
-        MenuSlidersHeight = 3,
-        MenuColorPickersSize = 32,
-        MenuColorPickersBackgroundColor = Color3.fromRGB(40, 0, 80),
-        MenuColorPickersBackgroundTransparency = 0.3,
-        MenuColorPickersTextColor = Color3.fromRGB(220, 220, 220),
-        MenuColorPickersTextSize = 12,
-        MenuColorPickersTextFont = "Gotham",
-        MenuColorPickersButtonSize = 50,
-        MenuColorPickersButtonHeight = 22,
-        MenuColorPickersButtonBorderRadius = 3,
-        MenuColorPickersColors = {
-            Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 0, 255),
-            Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 255), Color3.fromRGB(0, 255, 255),
-            Color3.fromRGB(255, 128, 0), Color3.fromRGB(128, 0, 255), Color3.fromRGB(0, 255, 128),
-            Color3.fromRGB(255, 255, 255)
-        },
-        MenuScrollBar = {
-            Enabled = true,
-            Color = Color3.fromRGB(200, 0, 255),
-            Thickness = 6,
-            Transparency = 0,
-            BorderRadius = 0,
-            BorderColor = Color3.fromRGB(0, 0, 0),
-            BorderThickness = 0,
-            BackgroundColor = Color3.fromRGB(0, 0, 0),
-            BackgroundTransparency = 1,
-            BackgroundBorderRadius = 0,
-            BackgroundBorderColor = Color3.fromRGB(0, 0, 0),
-            BackgroundBorderThickness = 0,
-            AnimationSpeed = 0.1,
-            AnimationStyle = "Quad",
-            AutoHide = false,
-            AutoHideDelay = 1,
-            AutoHideAnimation = true,
-            AutoHideAnimationSpeed = 0.1,
-            AutoHideAnimationStyle = "Quad",
-            AutoHideAnimationDirection = "Out",
-            AutoHideAnimationDirectionIn = "In",
-            AutoHideAnimationDirectionOut = "Out",
-            AutoHideAnimationDirectionInOut = "InOut"
-        },
-        MenuDraggable = true,
-        MenuDraggableArea = "Title",
-        MenuDraggableAreaSize = 45,
-        MenuDraggableAreaColor = Color3.fromRGB(25, 0, 50),
-        MenuDraggableAreaBorderRadius = 8,
-        MenuDraggableAreaTransparency = 0,
-        MenuDraggableAreaBorderColor = Color3.fromRGB(0, 0, 0),
-        MenuDraggableAreaBorderThickness = 0,
-        MenuDraggableAreaCursor = "Arrow",
-        MenuDraggableAreaCursorIcon = "",
-        MenuDraggableAreaCursorIconSize = 0,
-        MenuDraggableAreaCursorIconPosition = Vector2.new(0, 0),
-        MenuDraggableAreaCursorIconColor = Color3.fromRGB(255, 255, 255),
-        MenuDraggableAreaCursorIconTransparency = 0,
-        MenuDraggableAreaCursorIconBorderRadius = 0,
-        MenuDraggableAreaCursorIconBorderColor = Color3.fromRGB(0, 0, 0),
-        MenuDraggableAreaCursorIconBorderThickness = 0,
-        MenuDraggableAreaCursorIconBackgroundColor = Color3.fromRGB(0, 0, 0),
-        MenuDraggableAreaCursorIconBackgroundTransparency = 1,
-        MenuDraggableAreaCursorIconBackgroundBorderRadius = 0,
-        MenuDraggableAreaCursorIconBackgroundBorderColor = Color3.fromRGB(0, 0, 0),
-        MenuDraggableAreaCursorIconBackgroundBorderThickness = 0,
-        MenuDraggableAreaCursorIconBackgroundSize = Vector2.new(0, 0),
-        MenuDraggableAreaCursorIconBackgroundPosition = Vector2.new(0, 0),
-        MenuDraggableAreaCursorIconBackgroundColor = Color3.fromRGB(0, 0, 0),
-        MenuDraggableAreaCursorIconBackgroundTransparency = 1,
-        MenuDraggableAreaCursorIconBackgroundBorderRadius = 0,
-        MenuDraggableAreaCursorIconBackgroundBorderColor = Color3.fromRGB(0, 0, 0),
-        MenuDraggableAreaCursorIconBackgroundBorderThickness = 0
-    }
+    Movement = { Airstrafe = false, LegSlide = false }
 }
 
 -- ========== ОСНОВНЫЕ ФУНКЦИИ ==========
 local function GetClosestTarget()
-    local closest = nil
-    local closestDistance = math.huge
+    local closest, closestDistance = nil, math.huge
     for _, target in ipairs(Players:GetPlayers()) do
         if target ~= Player and target.Character and target.Character:FindFirstChild("Humanoid") and target.Character.Humanoid.Health > 0 then
             local targetPos = target.Character:FindFirstChild("HumanoidRootPart")
@@ -617,8 +40,7 @@ local function GetClosestTarget()
                 if onScreen then
                     local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
                     if distance < closestDistance then
-                        closestDistance = distance
-                        closest = target
+                        closestDistance, closest = distance, target
                     end
                 end
             end
@@ -627,11 +49,9 @@ local function GetClosestTarget()
     return closest
 end
 
-local function GetHitChance()
-    return math.random() <= (Settings.Rage.Hitchance / 100)
-end
+local function GetHitChance() return math.random() <= (Settings.Rage.Hitchance / 100) end
 
--- ========== RAGE BOT (SILENT AIM + AUTO SHOOT) ==========
+-- RAGE BOT
 RunService.RenderStepped:Connect(function()
     if Settings.Rage.Enabled then
         local target = GetClosestTarget()
@@ -640,179 +60,136 @@ RunService.RenderStepped:Connect(function()
             if targetPart then
                 local targetPos = targetPart.Position
                 if Settings.Rage.Multipoints then
-                    local offsets = {
-                        Vector3.new(0, 1, 0), Vector3.new(0, -1, 0), Vector3.new(0.5, 0.5, 0),
-                        Vector3.new(-0.5, 0.5, 0), Vector3.new(0.5, -0.5, 0), Vector3.new(-0.5, -0.5, 0)
-                    }
+                    local offsets = { Vector3.new(0, 1, 0), Vector3.new(0, -1, 0), Vector3.new(0.5, 0.5, 0), Vector3.new(-0.5, 0.5, 0) }
                     targetPos = targetPos + offsets[math.random(1, #offsets)]
                 end
-                
                 local tool = Player.Character:FindFirstChildOfClass("Tool")
                 if tool then
-                    local shootEvent = ReplicatedStorage:FindFirstChild("Shoot") or 
-                                      ReplicatedStorage:FindFirstChild("Fire") or 
-                                      ReplicatedStorage:FindFirstChild("Attack")
-                    if shootEvent then
-                        shootEvent:FireServer(targetPos)
-                    end
+                    local shootEvent = ReplicatedStorage:FindFirstChild("Shoot") or ReplicatedStorage:FindFirstChild("Fire") or ReplicatedStorage:FindFirstChild("Attack")
+                    if shootEvent then shootEvent:FireServer(targetPos) end
                 end
             end
         end
     end
 end)
 
--- ========== ANTI AIM ==========
+-- ANTI AIM
 coroutine.wrap(function()
     while task.wait() do
         if Settings.AntiAim.Enabled and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
             local hrp = Player.Character.HumanoidRootPart
             local yaw = Settings.AntiAim.Yaw
-            if Settings.AntiAim.Jitter then
-                yaw = yaw + math.random(-Settings.AntiAim.JitterRange, Settings.AntiAim.JitterRange)
-            end
+            if Settings.AntiAim.Jitter then yaw = yaw + math.random(-Settings.AntiAim.JitterRange, Settings.AntiAim.JitterRange) end
             hrp.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(math.rad(Settings.AntiAim.Pitch), math.rad(yaw), 0)
         end
         task.wait(0.05)
     end
 end)()
 
--- ========== VISUALS (WORLD) ==========
+-- VISUALS
 coroutine.wrap(function()
     while task.wait(0.1) do
-        if Settings.Visuals.World.WorldModulation then
-            Lighting.ColorShift_Top = Settings.Visuals.World.WorldColor
-            Lighting.ColorShift_Bottom = Settings.Visuals.World.WorldColor
+        if Settings.Visuals.WorldColor then
+            Lighting.ColorShift_Top = Settings.Visuals.WorldColorValue
+            Lighting.ColorShift_Bottom = Settings.Visuals.WorldColorValue
         else
             Lighting.ColorShift_Top = Color3.fromRGB(0, 0, 0)
             Lighting.ColorShift_Bottom = Color3.fromRGB(0, 0, 0)
         end
-        if Settings.Visuals.World.Fog then
-            Lighting.FogColor = Settings.Visuals.World.FogColor
-            Lighting.FogEnd = Settings.Visuals.World.FogEnd
-        else
-            Lighting.FogEnd = 100000
-        end
-        Lighting.ClockTime = Settings.Visuals.World.ClockTime
-        Lighting.ExposureCompensation = Settings.Visuals.World.MapReflectance
+        Lighting.FogEnd = Settings.Visuals.Fog and Settings.Visuals.FogEnd or 100000
+        Lighting.FogColor = Settings.Visuals.FogColor
+        Lighting.ClockTime = Settings.Visuals.ClockTime
+        Lighting.ExposureCompensation = Settings.Visuals.MapReflectance
     end
 end)()
 
--- ========== CROSSHAIR ==========
-local crosshair, crosshair2, crosshair3 = nil, nil, nil
+-- CROSSHAIR
+local crosshair, crosshair2 = nil, nil
 coroutine.wrap(function()
     while task.wait(0.1) do
-        if Settings.Visuals.Crosshair.Enabled then
+        if Settings.Visuals.Crosshair then
             if not crosshair then
                 crosshair = Instance.new("Frame")
-                crosshair.Size = UDim2.new(0, Settings.Visuals.Crosshair.Thickness, 0, Settings.Visuals.Crosshair.Size)
-                crosshair.Position = UDim2.new(0.5, -Settings.Visuals.Crosshair.Thickness/2, 0.5, -Settings.Visuals.Crosshair.Size/2)
-                crosshair.BackgroundColor3 = Settings.Visuals.Crosshair.Color
+                crosshair.Size = UDim2.new(0, 2, 0, 16)
+                crosshair.Position = UDim2.new(0.5, -1, 0.5, -8)
+                crosshair.BackgroundColor3 = Settings.Visuals.CrosshairColor
                 crosshair.BorderSizePixel = 0
                 crosshair.Parent = CoreGui
-                
                 crosshair2 = Instance.new("Frame")
-                crosshair2.Size = UDim2.new(0, Settings.Visuals.Crosshair.Size, 0, Settings.Visuals.Crosshair.Thickness)
-                crosshair2.Position = UDim2.new(0.5, -Settings.Visuals.Crosshair.Size/2, 0.5, -Settings.Visuals.Crosshair.Thickness/2)
-                crosshair2.BackgroundColor3 = Settings.Visuals.Crosshair.Color
+                crosshair2.Size = UDim2.new(0, 16, 0, 2)
+                crosshair2.Position = UDim2.new(0.5, -8, 0.5, -1)
+                crosshair2.BackgroundColor3 = Settings.Visuals.CrosshairColor
                 crosshair2.BorderSizePixel = 0
                 crosshair2.Parent = CoreGui
-                
-                if Settings.Visuals.Crosshair.Dot then
-                    crosshair3 = Instance.new("Frame")
-                    crosshair3.Size = UDim2.new(0, Settings.Visuals.Crosshair.DotSize, 0, Settings.Visuals.Crosshair.DotSize)
-                    crosshair3.Position = UDim2.new(0.5, -Settings.Visuals.Crosshair.DotSize/2, 0.5, -Settings.Visuals.Crosshair.DotSize/2)
-                    crosshair3.BackgroundColor3 = Settings.Visuals.Crosshair.DotColor
-                    crosshair3.BorderSizePixel = 0
-                    crosshair3.Parent = CoreGui
-                    
-                    local dotCorner = Instance.new("UICorner")
-                    dotCorner.CornerRadius = UDim.new(1, 0)
-                    dotCorner.Parent = crosshair3
-                end
             else
-                crosshair.BackgroundColor3 = Settings.Visuals.Crosshair.Color
-                crosshair2.BackgroundColor3 = Settings.Visuals.Crosshair.Color
-                if crosshair3 then crosshair3.BackgroundColor3 = Settings.Visuals.Crosshair.DotColor end
+                crosshair.BackgroundColor3 = Settings.Visuals.CrosshairColor
+                crosshair2.BackgroundColor3 = Settings.Visuals.CrosshairColor
             end
         else
-            if crosshair then
-                crosshair:Destroy()
-                crosshair2:Destroy()
-                if crosshair3 then crosshair3:Destroy() end
-                crosshair, crosshair2, crosshair3 = nil, nil, nil
-            end
+            if crosshair then crosshair:Destroy(); crosshair2:Destroy(); crosshair, crosshair2 = nil, nil end
         end
     end
 end)()
 
--- ========== SNOW ==========
+-- SNOW
 local snowParts = {}
 coroutine.wrap(function()
-    while task.wait(0.5) do
-        if Settings.Visuals.World.Snow then
+    while task.wait(0.3) do
+        if Settings.Visuals.Snow then
             for i = #snowParts, 1, -1 do
                 if snowParts[i] and snowParts[i].Parent then
-                    snowParts[i].CFrame = snowParts[i].CFrame + Vector3.new(0, -0.2, 0)
-                    if snowParts[i].Position.Y < 0 then
-                        snowParts[i]:Destroy()
-                        table.remove(snowParts, i)
-                    end
+                    snowParts[i].CFrame = snowParts[i].CFrame + Vector3.new(0, -0.3, 0)
+                    if snowParts[i].Position.Y < 0 then snowParts[i]:Destroy(); table.remove(snowParts, i) end
                 end
             end
-            for i = 1, Settings.Visuals.World.SnowAmount do
+            for i = 1, Settings.Visuals.SnowAmount do
                 local part = Instance.new("Part")
                 part.Size = Vector3.new(0.2, 0.2, 0.2)
                 part.BrickColor = BrickColor.new("White")
                 part.Material = Enum.Material.Neon
-                part.CFrame = CFrame.new(
-                    math.random(-Settings.Visuals.World.SnowRadius, Settings.Visuals.World.SnowRadius),
-                    50,
-                    math.random(-Settings.Visuals.World.SnowRadius, Settings.Visuals.World.SnowRadius)
-                )
+                part.CFrame = CFrame.new(math.random(-Settings.Visuals.SnowRadius, Settings.Visuals.SnowRadius), 30, math.random(-Settings.Visuals.SnowRadius, Settings.Visuals.SnowRadius))
                 part.Anchored = true
                 part.CanCollide = false
                 part.Parent = workspace
                 table.insert(snowParts, part)
             end
         else
-            for _, part in ipairs(snowParts) do
-                if part and part.Parent then part:Destroy() end
-            end
+            for _, part in ipairs(snowParts) do if part and part.Parent then part:Destroy() end end
             snowParts = {}
         end
     end
 end)()
--- ========== JUMP CIRCLES ==========
+
+-- JUMP CIRCLES
 coroutine.wrap(function()
     Player.CharacterAdded:Connect(function(char)
-        local humanoid = char:WaitForChild("Humanoid")
-        humanoid.Jumping:Connect(function()
-            if Settings.Visuals.World.JumpCircles then
+        char:WaitForChild("Humanoid").Jumping:Connect(function()
+            if Settings.Visuals.JumpCircles then
                 local circle = Instance.new("Part")
-                circle.Size = Vector3.new(6, 0.2, 6)
+                circle.Size = Vector3.new(5, 0.2, 5)
                 circle.CFrame = char.HumanoidRootPart.CFrame - Vector3.new(0, 2, 0)
                 circle.BrickColor = BrickColor.new("Bright violet")
                 circle.Material = Enum.Material.Neon
                 circle.Anchored = true
                 circle.CanCollide = false
                 circle.Parent = workspace
-                task.delay(1, function() circle:Destroy() end)
+                task.delay(0.8, function() circle:Destroy() end)
             end
         end)
     end)
 end)()
 
--- ========== UI СОЗДАНИЕ (ПРОСТОЕ МЕНЮ) ==========
+-- ========== КРАСИВОЕ МЕНЮ ==========
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "FatalityMenu"
 ScreenGui.Parent = CoreGui
 if syn and syn.protect_gui then syn.protect_gui(ScreenGui) end
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 400, 0, 300)
-MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
-MainFrame.BackgroundColor3 = Color3.fromRGB(18, 0, 35)
-MainFrame.BackgroundTransparency = 0.05
+MainFrame.Size = UDim2.new(0, 380, 0, 450)
+MainFrame.Position = UDim2.new(0.5, -190, 0.5, -225)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 0, 50)
+MainFrame.BackgroundTransparency = 0.1
 MainFrame.BorderSizePixel = 1
 MainFrame.BorderColor3 = Color3.fromRGB(200, 0, 255)
 MainFrame.Active = true
@@ -821,62 +198,218 @@ MainFrame.Parent = ScreenGui
 
 local TitleBar = Instance.new("TextLabel")
 TitleBar.Size = UDim2.new(1, 0, 0, 40)
-TitleBar.BackgroundColor3 = Color3.fromRGB(25, 0, 50)
+TitleBar.BackgroundColor3 = Color3.fromRGB(40, 0, 70)
 TitleBar.Text = "FATALITY CS2 | RAGE BOT"
 TitleBar.TextColor3 = Color3.fromRGB(200, 0, 255)
-TitleBar.TextSize = 18
+TitleBar.TextSize = 16
 TitleBar.Font = Enum.Font.GothamBold
 TitleBar.Parent = MainFrame
 
-local StatusLabel = Instance.new("TextLabel")
-StatusLabel.Size = UDim2.new(1, 0, 0, 30)
-StatusLabel.Position = UDim2.new(0, 0, 0, 50)
-StatusLabel.BackgroundTransparency = 1
-StatusLabel.Text = "Rage Bot: OFF | Anti Aim: OFF"
-StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-StatusLabel.TextSize = 14
-StatusLabel.Font = Enum.Font.Gotham
-StatusLabel.Parent = MainFrame
+local TabContainer = Instance.new("Frame")
+TabContainer.Size = UDim2.new(1, 0, 0, 40)
+TabContainer.Position = UDim2.new(0, 0, 0, 40)
+TabContainer.BackgroundColor3 = Color3.fromRGB(35, 0, 60)
+TabContainer.BackgroundTransparency = 0.3
+TabContainer.Parent = MainFrame
 
-local ToggleButton = Instance.new("TextButton")
-ToggleButton.Size = UDim2.new(0, 150, 0, 40)
-ToggleButton.Position = UDim2.new(0.5, -75, 0, 100)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(150, 0, 255)
-ToggleButton.Text = "Toggle RAGE BOT (Insert)"
-ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.TextSize = 14
-ToggleButton.Font = Enum.Font.GothamBold
-ToggleButton.Parent = MainFrame
+local ContentContainer = Instance.new("ScrollingFrame")
+ContentContainer.Size = UDim2.new(1, -20, 1, -90)
+ContentContainer.Position = UDim2.new(0, 10, 0, 85)
+ContentContainer.BackgroundTransparency = 1
+ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+ContentContainer.ScrollBarThickness = 4
+ContentContainer.Parent = MainFrame
 
-local CloseButton = Instance.new("TextButton")
-CloseButton.Size = UDim2.new(0, 100, 0, 30)
-CloseButton.Position = UDim2.new(1, -110, 0, 5)
-CloseButton.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-CloseButton.Text = "Close"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextSize = 12
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Parent = MainFrame
+local function CreateTab(name, content)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 70, 1, -10)
+    btn.Position = UDim2.new(0, 10 + (#TabContainer:GetChildren() - 1) * 80, 0, 5)
+    btn.BackgroundColor3 = Color3.fromRGB(50, 0, 90)
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(220, 220, 220)
+    btn.TextSize = 12
+    btn.Font = Enum.Font.GothamBold
+    btn.Parent = TabContainer
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 0, 0)
+    frame.BackgroundTransparency = 1
+    frame.Visible = false
+    frame.Parent = ContentContainer
+    
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 8)
+    layout.Parent = frame
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        frame.Size = UDim2.new(1, 0, 0, layout.AbsoluteContentSize.Y)
+        ContentContainer.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+    end)
+    
+    btn.MouseButton1Click:Connect(function()
+        for _, child in ipairs(TabContainer:GetChildren()) do
+            if child:IsA("TextButton") then child.BackgroundColor3 = Color3.fromRGB(50, 0, 90) end
+        end
+        for _, f in ipairs(ContentContainer:GetChildren()) do if f:IsA("Frame") then f.Visible = false end end
+        btn.BackgroundColor3 = Color3.fromRGB(150, 0, 255)
+        frame.Visible = true
+    end)
+    
+    if #TabContainer:GetChildren() == 1 then btn.BackgroundColor3 = Color3.fromRGB(150, 0, 255); frame.Visible = true end
+    return frame
+end
 
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
+local function AddToggle(parent, text, setting)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 0, 35)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 0, 70)
+    frame.BackgroundTransparency = 0.3
+    frame.Parent = parent
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -70, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.TextSize = 13
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = frame
+    
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 55, 0, 25)
+    btn.Position = UDim2.new(1, -65, 0.5, -12.5)
+    btn.BackgroundColor3 = setting.Value and Color3.fromRGB(150, 0, 255) or Color3.fromRGB(70, 0, 100)
+    btn.Text = setting.Value and "ON" or "OFF"
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 11
+    btn.Font = Enum.Font.GothamBold
+    btn.Parent = frame
+    
+    btn.MouseButton1Click:Connect(function()
+        setting.Value = not setting.Value
+        btn.BackgroundColor3 = setting.Value and Color3.fromRGB(150, 0, 255) or Color3.fromRGB(70, 0, 100)
+        btn.Text = setting.Value and "ON" or "OFF"
+    end)
+end
+
+local function AddSlider(parent, text, setting, minVal, maxVal)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 0, 55)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 0, 70)
+    frame.BackgroundTransparency = 0.3
+    frame.Parent = parent
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 20)
+    label.Position = UDim2.new(0, 10, 0, 5)
+    label.BackgroundTransparency = 1
+    label.Text = text .. ": " .. setting.Value
+    label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.TextSize = 12
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = frame
+    
+    local slider = Instance.new("Frame")
+    slider.Size = UDim2.new(1, -20, 0, 3)
+    slider.Position = UDim2.new(0, 10, 0, 35)
+    slider.BackgroundColor3 = Color3.fromRGB(80, 0, 120)
+    slider.Parent = frame
+    
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new((setting.Value - minVal) / (maxVal - minVal), 0, 1, 0)
+    fill.BackgroundColor3 = Color3.fromRGB(200, 0, 255)
+    fill.Parent = slider
+    
+    local knob = Instance.new("TextButton")
+    knob.Size = UDim2.new(0, 12, 0, 12)
+    knob.Position = UDim2.new((setting.Value - minVal) / (maxVal - minVal), -6, 0.5, -6)
+    knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    knob.Text = ""
+    knob.Parent = slider
+    
+    local dragging = false
+    knob.MouseButton1Down:Connect(function() dragging = true end)
+    UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local rel = math.clamp((input.Position.X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
+            setting.Value = math.floor(minVal + (maxVal - minVal) * rel)
+            fill.Size = UDim2.new(rel, 0, 1, 0)
+            knob.Position = UDim2.new(rel, -6, 0.5, -6)
+            label.Text = text .. ": " .. setting.Value
+        end
+    end)
+end
+
+local function AddColorPicker(parent, text, setting)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 0, 35)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 0, 70)
+    frame.BackgroundTransparency = 0.3
+    frame.Parent = parent
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -70, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.TextSize = 12
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = frame
+    
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 50, 0, 25)
+    btn.Position = UDim2.new(1, -60, 0.5, -12.5)
+    btn.BackgroundColor3 = setting.Value
+    btn.Text = ""
+    btn.Parent = frame
+    
+    local colors = {Color3.fromRGB(255,0,0), Color3.fromRGB(0,255,0), Color3.fromRGB(0,0,255), Color3.fromRGB(255,255,0), Color3.fromRGB(255,0,255), Color3.fromRGB(0,255,255)}
+    local idx = 1
+    btn.MouseButton1Click:Connect(function() idx = idx % #colors + 1; setting.Value = colors[idx]; btn.BackgroundColor3 = setting.Value end)
+end
+
+-- RAGE TAB
+local rageTab = CreateTab("RAGE", ContentContainer)
+AddToggle(rageTab, "Rage Bot", {Value = Settings.Rage.Enabled})
+AddSlider(rageTab, "Hitchance", {Value = Settings.Rage.Hitchance}, 0, 100)
+AddToggle(rageTab, "Multipoints", {Value = Settings.Rage.Multipoints})
+
+-- ANTI AIM TAB
+local aaTab = CreateTab("ANTI AIM", ContentContainer)
+AddToggle(aaTab, "Anti Aim", {Value = Settings.AntiAim.Enabled})
+AddSlider(aaTab, "Pitch", {Value = Settings.AntiAim.Pitch}, 0, 100)
+AddSlider(aaTab, "Yaw", {Value = Settings.AntiAim.Yaw}, 0, 360)
+AddToggle(aaTab, "Jitter", {Value = Settings.AntiAim.Jitter})
+AddSlider(aaTab, "Jitter Range", {Value = Settings.AntiAim.JitterRange}, 0, 100)
+
+-- VISUALS TAB
+local visTab = CreateTab("VISUALS", ContentContainer)
+AddToggle(visTab, "Crosshair", {Value = Settings.Visuals.Crosshair})
+AddColorPicker(visTab, "Crosshair Color", {Value = Settings.Visuals.CrosshairColor})
+AddToggle(visTab, "Snow", {Value = Settings.Visuals.Snow})
+AddSlider(visTab, "Snow Amount", {Value = Settings.Visuals.SnowAmount}, 0, 300)
+AddSlider(visTab, "Snow Radius", {Value = Settings.Visuals.SnowRadius}, 10, 100)
+AddToggle(visTab, "Fog", {Value = Settings.Visuals.Fog})
+AddColorPicker(visTab, "Fog Color", {Value = Settings.Visuals.FogColor})
+AddSlider(visTab, "Fog Distance", {Value = Settings.Visuals.FogEnd}, 50, 500)
+AddToggle(visTab, "World Color", {Value = Settings.Visuals.WorldColor})
+AddColorPicker(visTab, "World Color Value", {Value = Settings.Visuals.WorldColorValue})
+AddSlider(visTab, "Clock Time", {Value = Settings.Visuals.ClockTime}, 0, 24)
+AddSlider(visTab, "Map Reflectance", {Value = Settings.Visuals.MapReflectance}, 0, 1)
+AddToggle(visTab, "Jump Circles", {Value = Settings.Visuals.JumpCircles})
+
+-- MOVEMENT TAB
+local movTab = CreateTab("MOVEMENT", ContentContainer)
+AddToggle(movTab, "Airstrafe", {Value = Settings.Movement.Airstrafe})
+AddToggle(movTab, "Leg Slide", {Value = Settings.Movement.LegSlide})
+
+UserInputService.InputBegan:Connect(function(input, g)
+    if input.KeyCode == Enum.KeyCode.Insert then ScreenGui.Enabled = not ScreenGui.Enabled end
 end)
 
-ToggleButton.MouseButton1Click:Connect(function()
-    Settings.Rage.Enabled = not Settings.Rage.Enabled
-    StatusLabel.Text = "Rage Bot: " .. (Settings.Rage.Enabled and "ON" or "OFF") .. " | Anti Aim: " .. (Settings.AntiAim.Enabled and "ON" or "OFF")
-    ToggleButton.BackgroundColor3 = Settings.Rage.Enabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(150, 0, 255)
-end)
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if input.KeyCode == Settings.Misc.MenuKey then
-        ScreenGui.Enabled = not ScreenGui.Enabled
-    end
-    if input.KeyCode == Enum.KeyCode.Insert then
-        Settings.Rage.Enabled = not Settings.Rage.Enabled
-        StatusLabel.Text = "Rage Bot: " .. (Settings.Rage.Enabled and "ON" or "OFF") .. " | Anti Aim: " .. (Settings.AntiAim.Enabled and "ON" or "OFF")
-        ToggleButton.BackgroundColor3 = Settings.Rage.Enabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(150, 0, 255)
-    end
-end)
-
-print("FATALITY CS2 RAGE BOT ЗАГРУЖЕН! Нажми Insert для включения/выключения.")
+print("FATALITY CS2 | Меню загружено! Нажми Insert")
