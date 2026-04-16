@@ -752,7 +752,11 @@ coroutine.wrap(function()
         if Settings.Visuals.World.Snow then
             for i = #snowParts, 1, -1 do
                 if snowParts[i] and snowParts[i].Parent then
-                    snowParts[i].CFrame = snowParts[i].                    end
+                    snowParts[i].CFrame = snowParts[i].CFrame + Vector3.new(0, -0.2, 0)
+                    if snowParts[i].Position.Y < 0 then
+                        snowParts[i]:Destroy()
+                        table.remove(snowParts, i)
+                    end
                 end
             end
             for i = 1, Settings.Visuals.World.SnowAmount do
@@ -778,7 +782,6 @@ coroutine.wrap(function()
         end
     end
 end)()
-
 -- ========== JUMP CIRCLES ==========
 coroutine.wrap(function()
     Player.CharacterAdded:Connect(function(char)
