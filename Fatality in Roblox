@@ -752,4 +752,128 @@ coroutine.wrap(function()
         if Settings.Visuals.World.Snow then
             for i = #snowParts, 1, -1 do
                 if snowParts[i] and snowParts[i].Parent then
-                    snowParts[i].CFrame = snowParts[i].
+                    snowParts[i].CFrame = snowParts[i].                    end
+                end
+            end
+            for i = 1, Settings.Visuals.World.SnowAmount do
+                local part = Instance.new("Part")
+                part.Size = Vector3.new(0.2, 0.2, 0.2)
+                part.BrickColor = BrickColor.new("White")
+                part.Material = Enum.Material.Neon
+                part.CFrame = CFrame.new(
+                    math.random(-Settings.Visuals.World.SnowRadius, Settings.Visuals.World.SnowRadius),
+                    50,
+                    math.random(-Settings.Visuals.World.SnowRadius, Settings.Visuals.World.SnowRadius)
+                )
+                part.Anchored = true
+                part.CanCollide = false
+                part.Parent = workspace
+                table.insert(snowParts, part)
+            end
+        else
+            for _, part in ipairs(snowParts) do
+                if part and part.Parent then part:Destroy() end
+            end
+            snowParts = {}
+        end
+    end
+end)()
+
+-- ========== JUMP CIRCLES ==========
+coroutine.wrap(function()
+    Player.CharacterAdded:Connect(function(char)
+        local humanoid = char:WaitForChild("Humanoid")
+        humanoid.Jumping:Connect(function()
+            if Settings.Visuals.World.JumpCircles then
+                local circle = Instance.new("Part")
+                circle.Size = Vector3.new(6, 0.2, 6)
+                circle.CFrame = char.HumanoidRootPart.CFrame - Vector3.new(0, 2, 0)
+                circle.BrickColor = BrickColor.new("Bright violet")
+                circle.Material = Enum.Material.Neon
+                circle.Anchored = true
+                circle.CanCollide = false
+                circle.Parent = workspace
+                task.delay(1, function() circle:Destroy() end)
+            end
+        end)
+    end)
+end)()
+
+-- ========== UI СОЗДАНИЕ (ПРОСТОЕ МЕНЮ) ==========
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FatalityMenu"
+ScreenGui.Parent = CoreGui
+if syn and syn.protect_gui then syn.protect_gui(ScreenGui) end
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 400, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 0, 35)
+MainFrame.BackgroundTransparency = 0.05
+MainFrame.BorderSizePixel = 1
+MainFrame.BorderColor3 = Color3.fromRGB(200, 0, 255)
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+local TitleBar = Instance.new("TextLabel")
+TitleBar.Size = UDim2.new(1, 0, 0, 40)
+TitleBar.BackgroundColor3 = Color3.fromRGB(25, 0, 50)
+TitleBar.Text = "FATALITY CS2 | RAGE BOT"
+TitleBar.TextColor3 = Color3.fromRGB(200, 0, 255)
+TitleBar.TextSize = 18
+TitleBar.Font = Enum.Font.GothamBold
+TitleBar.Parent = MainFrame
+
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Size = UDim2.new(1, 0, 0, 30)
+StatusLabel.Position = UDim2.new(0, 0, 0, 50)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Text = "Rage Bot: OFF | Anti Aim: OFF"
+StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+StatusLabel.TextSize = 14
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.Parent = MainFrame
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 150, 0, 40)
+ToggleButton.Position = UDim2.new(0.5, -75, 0, 100)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(150, 0, 255)
+ToggleButton.Text = "Toggle RAGE BOT (Insert)"
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.TextSize = 14
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.Parent = MainFrame
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 100, 0, 30)
+CloseButton.Position = UDim2.new(1, -110, 0, 5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+CloseButton.Text = "Close"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 12
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = MainFrame
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+ToggleButton.MouseButton1Click:Connect(function()
+    Settings.Rage.Enabled = not Settings.Rage.Enabled
+    StatusLabel.Text = "Rage Bot: " .. (Settings.Rage.Enabled and "ON" or "OFF") .. " | Anti Aim: " .. (Settings.AntiAim.Enabled and "ON" or "OFF")
+    ToggleButton.BackgroundColor3 = Settings.Rage.Enabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(150, 0, 255)
+end)
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Settings.Misc.MenuKey then
+        ScreenGui.Enabled = not ScreenGui.Enabled
+    end
+    if input.KeyCode == Enum.KeyCode.Insert then
+        Settings.Rage.Enabled = not Settings.Rage.Enabled
+        StatusLabel.Text = "Rage Bot: " .. (Settings.Rage.Enabled and "ON" or "OFF") .. " | Anti Aim: " .. (Settings.AntiAim.Enabled and "ON" or "OFF")
+        ToggleButton.BackgroundColor3 = Settings.Rage.Enabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(150, 0, 255)
+    end
+end)
+
+print("FATALITY CS2 RAGE BOT ЗАГРУЖЕН! Нажми Insert для включения/выключения.")
