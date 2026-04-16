@@ -1,0 +1,734 @@
+--[[
+    SWILL | FATALITY CS2 STYLE RAGE BOT
+    Полная копия интерфейса Fatality для CS2
+    Для Xeno Executor | Фиолетовая тема | Silent Aim + Anti Aim
+--]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+
+local Player = Players.LocalPlayer
+local Mouse = Player:GetMouse()
+local Camera = workspace.CurrentCamera
+
+-- ========== НАСТРОЙКИ (FATALITY СТИЛЬ) ==========
+local Settings = {
+    Rage = {
+        Enabled = false,
+        Hitchance = 85,
+        Multipoints = true,
+        Autostop = false,
+        Autoscope = false,
+        Autoreload = false
+    },
+    Visuals = {
+        Tracer = false,
+        TracerColor = Color3.fromRGB(200, 0, 255),
+        Snow = false,
+        SnowAmount = 200,
+        SnowRadius = 50,
+        WorldModulation = false,
+        WorldColor = Color3.fromRGB(150, 0, 255),
+        Fog = false,
+        FogColor = Color3.fromRGB(80, 0, 120),
+        ClockTime = 12,
+        MapReflectance = 0,
+        NoScopeEffects = false,
+        JumpCircles = false,
+        Crosshair = false,
+        CrosshairColor = Color3.fromRGB(200, 0, 255)
+    },
+    AntiAim = {
+        Enabled = false,
+        Pitch = 90,
+        Yaw = 180,
+        YawType = "Jitter",
+        Jitter = true,
+        JitterRange = 45
+    },
+    Movement = {
+        Airstrafe = false,
+        LegSlide = false
+    }
+}
+
+-- ========== UI БИБЛИОТЕКА (FATALITY CS2 СТИЛЬ) ==========
+local Library = {
+    ScreenGui = nil,
+    MainFrame = nil,
+    TabContainer = nil,
+    ContentContainer = nil,
+    CurrentTab = nil,
+    Tabs = {}
+}
+
+function Library:CreateUI()
+    self.ScreenGui = Instance.new("ScreenGui")
+    self.ScreenGui.Name = "SWILL_Fatality"
+    self.ScreenGui.Parent = game:GetService("CoreGui")
+    self.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    if syn and syn.protect_gui then
+        syn.protect_gui(self.ScreenGui)
+    end
+    
+    -- Главное окно (стиль Fatality)
+    self.MainFrame = Instance.new("Frame")
+    self.MainFrame.Size = UDim2.new(0, 520, 0, 580)
+    self.MainFrame.Position = UDim2.new(0.5, -260, 0.5, -290)
+    self.MainFrame.BackgroundColor3 = Color3.fromRGB(18, 0, 35)
+    self.MainFrame.BackgroundTransparency = 0.05
+    self.MainFrame.BorderSizePixel = 1
+    self.MainFrame.BorderColor3 = Color3.fromRGB(200, 0, 255)
+    self.MainFrame.ClipsDescendants = true
+    self.MainFrame.Active = true
+    self.MainFrame.Draggable = true
+    self.MainFrame.Parent = self.ScreenGui
+    
+    local mainCorner = Instance.new("UICorner")
+    mainCorner.CornerRadius = UDim.new(0, 8)
+    mainCorner.Parent = self.MainFrame
+    
+    -- Заголовок (Fatality стиль)
+    local title = Instance.new("Frame")
+    title.Size = UDim2.new(1, 0, 0, 45)
+    title.BackgroundColor3 = Color3.fromRGB(25, 0, 50)
+    title.BorderSizePixel = 0
+    title.Parent = self.MainFrame
+    
+    local titleCorner = Instance.new("UICorner")
+    titleCorner.CornerRadius = UDim.new(0, 8)
+    titleCorner.Parent = title
+    
+    local titleText = Instance.new("TextLabel")
+    titleText.Size = UDim2.new(1, 0, 1, 0)
+    titleText.BackgroundTransparency = 1
+    titleText.Text = "SWILL | FATALITY [RAGE BOT]"
+    titleText.TextColor3 = Color3.fromRGB(200, 0, 255)
+    titleText.TextSize = 18
+    titleText.Font = Enum.Font.GothamBold
+    titleText.TextXAlignment = Enum.TextXAlignment.Center
+    titleText.Parent = title
+    
+    -- Версия
+    local version = Instance.new("TextLabel")
+    version.Size = UDim2.new(0, 100, 1, 0)
+    version.Position = UDim2.new(1, -110, 0, 0)
+    version.BackgroundTransparency = 1
+    version.Text = "v3.0 | VIP"
+    version.TextColor3 = Color3.fromRGB(150, 0, 200)
+    version.TextSize = 11
+    version.Font = Enum.Font.Gotham
+    version.TextXAlignment = Enum.TextXAlignment.Right
+    version.Parent = title
+    
+    -- Контейнер для вкладок
+    self.TabContainer = Instance.new("Frame")
+    self.TabContainer.Size = UDim2.new(1, 0, 0, 45)
+    self.TabContainer.Position = UDim2.new(0, 0, 0, 45)
+    self.TabContainer.BackgroundColor3 = Color3.fromRGB(22, 0, 45)
+    self.TabContainer.BorderSizePixel = 0
+    self.TabContainer.Parent = self.MainFrame
+    
+    -- Контейнер для контента
+    self.ContentContainer = Instance.new("ScrollingFrame")
+    self.ContentContainer.Size = UDim2.new(1, -10, 1, -90)
+    self.ContentContainer.Position = UDim2.new(0, 5, 0, 90)
+    self.ContentContainer.BackgroundTransparency = 1
+    self.ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+    self.ContentContainer.ScrollBarThickness = 6
+    self.ContentContainer.ScrollBarImageColor3 = Color3.fromRGB(200, 0, 255)
+    self.ContentContainer.Parent = self.MainFrame
+    
+    local contentLayout = Instance.new("UIListLayout")
+    contentLayout.Padding = UDim.new(0, 6)
+    contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    contentLayout.Parent = self.ContentContainer
+    
+    contentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        self.ContentContainer.CanvasSize = UDim2.new(0, 0, 0, contentLayout.AbsoluteContentSize.Y + 10)
+    end)
+    
+    return self.ContentContainer
+end
+
+function Library:CreateTab(name)
+    local tabButton = Instance.new("TextButton")
+    tabButton.Size = UDim2.new(0, 100, 1, -10)
+    tabButton.Position = UDim2.new(0, 10 + (#self.Tabs * 105), 0, 5)
+    tabButton.BackgroundColor3 = Color3.fromRGB(35, 0, 70)
+    tabButton.Text = name
+    tabButton.TextColor3 = Color3.fromRGB(200, 0, 255)
+    tabButton.TextSize = 13
+    tabButton.Font = Enum.Font.GothamBold
+    tabButton.BorderSizePixel = 0
+    tabButton.Parent = self.TabContainer
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 4)
+    btnCorner.Parent = tabButton
+    
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Size = UDim2.new(1, 0, 0, 0)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.Visible = false
+    contentFrame.Parent = self.ContentContainer
+    
+    local contentLayout = Instance.new("UIListLayout")
+    contentLayout.Padding = UDim.new(0, 5)
+    contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    contentLayout.Parent = contentFrame
+    
+    contentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        contentFrame.Size = UDim2.new(1, 0, 0, contentLayout.AbsoluteContentSize.Y)
+    end)
+    
+    tabButton.MouseButton1Click:Connect(function()
+        for _, tab in pairs(self.Tabs) do
+            tab.Button.BackgroundColor3 = Color3.fromRGB(35, 0, 70)
+            tab.Content.Visible = false
+        end
+        tabButton.BackgroundColor3 = Color3.fromRGB(80, 0, 160)
+        contentFrame.Visible = true
+        self.CurrentTab = name
+    end)
+    
+    table.insert(self.Tabs, {Button = tabButton, Content = contentFrame, Name = name})
+    
+    if #self.Tabs == 1 then
+        tabButton.BackgroundColor3 = Color3.fromRGB(80, 0, 160)
+        contentFrame.Visible = true
+    end
+    
+    return contentFrame
+end
+
+function Library:CreateSection(parent, text)
+    local section = Instance.new("Frame")
+    section.Size = UDim2.new(1, -10, 0, 32)
+    section.Position = UDim2.new(0, 5, 0, 0)
+    section.BackgroundColor3 = Color3.fromRGB(30, 0, 60)
+    section.BorderSizePixel = 0
+    section.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 5)
+    corner.Parent = section
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(200, 0, 255)
+    label.TextSize = 13
+    label.Font = Enum.Font.GothamBold
+    label.TextXAlignment = Enum.TextXAlignment.Center
+    label.Parent = section
+    
+    return parent
+end
+
+function Library:CreateToggle(parent, text, settingPath, initialValue)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, -10, 0, 32)
+    frame.Position = UDim2.new(0, 5, 0, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 0, 80)
+    frame.BackgroundTransparency = 0.3
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 4)
+    corner.Parent = frame
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -65, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.TextSize = 12
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = frame
+    
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 55, 0, 22)
+    button.Position = UDim2.new(1, -60, 0.5, -11)
+    button.BackgroundColor3 = initialValue and Color3.fromRGB(150, 0, 255) or Color3.fromRGB(70, 0, 110)
+    button.Text = initialValue and "ON" or "OFF"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 11
+    button.Font = Enum.Font.GothamBold
+    button.BorderSizePixel = 0
+    button.Parent = frame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 3)
+    btnCorner.Parent = button
+    
+    local state = initialValue
+    
+    button.MouseButton1Click:Connect(function()
+        state = not state
+        button.BackgroundColor3 = state and Color3.fromRGB(150, 0, 255) or Color3.fromRGB(70, 0, 110)
+        button.Text = state and "ON" or "OFF"
+        
+        local parts = {}
+        for part in string.gmatch(settingPath, "[^.]+") do
+            table.insert(parts, part)
+        end
+        local current = Settings
+        for i = 1, #parts - 1 do
+            current = current[parts[i]]
+        end
+        current[parts[#parts]] = state
+    end)
+    
+    return frame
+end
+
+function Library:CreateSlider(parent, text, settingPath, min, max, initialValue)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, -10, 0, 52)
+    frame.Position = UDim2.new(0, 5, 0, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 0, 80)
+    frame.BackgroundTransparency = 0.3
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 4)
+    corner.Parent = frame
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -10, 0, 20)
+    label.Position = UDim2.new(0, 10, 0, 4)
+    label.BackgroundTransparency = 1
+    label.Text = text .. ": " .. initialValue
+    label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.TextSize = 12
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = frame
+    
+    local slider = Instance.new("Frame")
+    slider.Size = UDim2.new(1, -20, 0, 3)
+    slider.Position = UDim2.new(0, 10, 0, 30)
+    slider.BackgroundColor3 = Color3.fromRGB(55, 0, 90)
+    slider.BorderSizePixel = 0
+    slider.Parent = frame
+    
+    local sliderCorner = Instance.new("UICorner")
+    sliderCorner.CornerRadius = UDim.new(1, 0)
+    sliderCorner.Parent = slider
+    
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new((initialValue - min) / (max - min), 0, 1, 0)
+    fill.BackgroundColor3 = Color3.fromRGB(150, 0, 255)
+    fill.BorderSizePixel = 0
+    fill.Parent = slider
+    
+    local knob = Instance.new("TextButton")
+    knob.Size = UDim2.new(0, 12, 0, 12)
+    knob.Position = UDim2.new((initialValue - min) / (max - min), -6, 0.5, -6)
+    knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    knob.Text = ""
+    knob.BorderSizePixel = 0
+    knob.Parent = slider
+    
+    local knobCorner = Instance.new("UICorner")
+    knobCorner.CornerRadius = UDim.new(1, 0)
+    knobCorner.Parent = knob
+    
+    local value = initialValue
+    local dragging = false
+    
+    knob.MouseButton1Down:Connect(function() dragging = true end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local relativeX = math.clamp((input.Position.X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
+            value = math.floor(min + (max - min) * relativeX)
+            fill.Size = UDim2.new(relativeX, 0, 1, 0)
+            knob.Position = UDim2.new(relativeX, -6, 0.5, -6)
+            label.Text = text .. ": " .. value
+            
+            local parts = {}
+            for part in string.gmatch(settingPath, "[^.]+") do
+                table.insert(parts, part)
+            end
+            local current = Settings
+            for i = 1, #parts - 1 do
+                current = current[parts[i]]
+            end
+            current[parts[#parts]] = value
+        end
+    end)
+    
+    return frame
+end
+
+function Library:CreateColorPicker(parent, text, settingPath, initialColor)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, -10, 0, 32)
+    frame.Position = UDim2.new(0, 5, 0, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 0, 80)
+    frame.BackgroundTransparency = 0.3
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 4)
+    corner.Parent = frame
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -65, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.TextSize = 12
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = frame
+    
+    local colorBtn = Instance.new("TextButton")
+    colorBtn.Size = UDim2.new(0, 50, 0, 22)
+    colorBtn.Position = UDim2.new(1, -55, 0.5, -11)
+    colorBtn.BackgroundColor3 = initialColor
+    colorBtn.Text = ""
+    colorBtn.BorderSizePixel = 0
+    colorBtn.Parent = frame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 3)
+    btnCorner.Parent = colorBtn
+    
+    local colors = {
+        Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 0, 255),
+        Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 255), Color3.fromRGB(0, 255, 255),
+        Color3.fromRGB(255, 128, 0), Color3.fromRGB(128, 0, 255), Color3.fromRGB(0, 255, 128),
+        Color3.fromRGB(255, 255, 255)
+    }
+    local colorIndex = 1
+    
+    colorBtn.MouseButton1Click:Connect(function()
+        colorIndex = colorIndex % #colors + 1
+        local newColor = colors[colorIndex]
+        colorBtn.BackgroundColor3 = newColor
+        
+        local parts = {}
+        for part in string.gmatch(settingPath, "[^.]+") do
+            table.insert(parts, part)
+        end
+        local current = Settings
+        for i = 1, #parts - 1 do
+            current = current[parts[i]]
+        end
+        current[parts[#parts]] = newColor
+    end)
+    
+    return frame
+end
+
+-- ========== СОЗДАНИЕ UI (FATALITY СТИЛЬ) ==========
+local container = Library:CreateUI()
+
+-- TAB 1: RAGE
+local rageTab = Library:CreateTab("RAGE")
+Library:CreateSection(rageTab, "RAGE BOT")
+Library:CreateToggle(rageTab, "Ragebot", "Rage.Enabled", false)
+Library:CreateSlider(rageTab, "Hitchance", "Rage.Hitchance", 0, 100, 85)
+Library:CreateToggle(rageTab, "Multipoints", "Rage.Multipoints", true)
+Library:CreateToggle(rageTab, "Autostop", "Rage.Autostop", false)
+Library:CreateToggle(rageTab, "Autoscope", "Rage.Autoscope", false)
+Library:CreateToggle(rageTab, "Autoreload", "Rage.Autoreload", false)
+
+-- TAB 2: VISUALS
+local visualsTab = Library:CreateTab("VISUALS")
+Library:CreateSection(visualsTab, "VISUAL EFFECTS")
+Library:CreateToggle(visualsTab, "Tracer", "Visuals.Tracer", false)
+Library:CreateColorPicker(visualsTab, "Tracer Color", "Visuals.TracerColor", Color3.fromRGB(200, 0, 255))
+Library:CreateToggle(visualsTab, "Snow", "Visuals.Snow", false)
+Library:CreateSlider(visualsTab, "Snow Amount", "Visuals.SnowAmount", 0, 500, 200)
+Library:CreateSlider(visualsTab, "Snow Radius", "Visuals.SnowRadius", 0, 100, 50)
+Library:CreateToggle(visualsTab, "World Modulation", "Visuals.WorldModulation", false)
+Library:CreateColorPicker(visualsTab, "World Color", "Visuals.WorldColor", Color3.fromRGB(150, 0, 255))
+Library:CreateToggle(visualsTab, "Fog", "Visuals.Fog", false)
+Library:CreateColorPicker(visualsTab, "Fog Color", "Visuals.FogColor", Color3.fromRGB(80, 0, 120))
+Library:CreateSlider(visualsTab, "Clock Time", "Visuals.ClockTime", 0, 24, 12)
+Library:CreateSlider(visualsTab, "Map Reflectance", "Visuals.MapReflectance", 0, 1, 0)
+Library:CreateToggle(visualsTab, "No Scope Effects", "Visuals.NoScopeEffects", false)
+Library:CreateToggle(visualsTab, "Jump Circles", "Visuals.JumpCircles", false)
+Library:CreateToggle(visualsTab, "Crosshair", "Visuals.Crosshair", false)
+Library:CreateColorPicker(visualsTab, "Crosshair Color", "Visuals.CrosshairColor", Color3.fromRGB(200, 0, 255))
+
+-- TAB 3: ANTI AIM
+local antiAimTab = Library:CreateTab("ANTI AIM")
+Library:CreateSection(antiAimTab, "ANTI AIM")
+Library:CreateToggle(antiAimTab, "Enable AntiAim", "AntiAim.Enabled", false)
+Library:CreateSlider(antiAimTab, "Pitch", "AntiAim.Pitch", 0, 100, 90)
+Library:CreateSlider(antiAimTab, "Yaw", "AntiAim.Yaw", 0, 100, 180)
+Library:CreateToggle(antiAimTab, "Jitter", "AntiAim.Jitter", true)
+Library:CreateSlider(antiAimTab, "Jitter Range", "AntiAim.JitterRange", 0, 100, 45)
+
+-- TAB 4: MOVEMENT
+local movementTab = Library:CreateTab("MOVEMENT")
+Library:CreateSection(movementTab, "MOVEMENT")
+Library:CreateToggle(movementTab, "Airstrafe", "Movement.Airstrafe", false)
+Library:CreateToggle(movementTab, "Leg Slide", "Movement.LegSlide", false)
+
+-- ========== ПРОФИЛЬ (FATALITY СТИЛЬ) ==========
+local profileFrame = Instance.new("Frame")
+profileFrame.Size = UDim2.new(0, 240, 0, 60)
+profileFrame.Position = UDim2.new(0, 10, 1, -70)
+profileFrame.BackgroundColor3 = Color3.fromRGB(12, 0, 25)
+profileFrame.BackgroundTransparency = 0.1
+profileFrame.BorderSizePixel = 1
+profileFrame.BorderColor3 = Color3.fromRGB(150, 0, 200)
+profileFrame.Parent = Library.ScreenGui
+
+local profileCorner = Instance.new("UICorner")
+profileCorner.CornerRadius = UDim.new(0, 8)
+profileCorner.Parent = profileFrame
+
+local avatarCircle = Instance.new("Frame")
+avatarCircle.Size = UDim2.new(0, 45, 0, 45)
+avatarCircle.Position = UDim2.new(0, 8, 0.5, -22.5)
+avatarCircle.BackgroundColor3 = Color3.fromRGB(25, 0, 50)
+avatarCircle.BorderSizePixel = 1
+avatarCircle.BorderColor3 = Color3.fromRGB(150, 0, 200)
+avatarCircle.Parent = profileFrame
+
+local avatarCorner = Instance.new("UICorner")
+avatarCorner.CornerRadius = UDim.new(1, 0)
+avatarCorner.Parent = avatarCircle
+
+local thumbnail = Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+local avatarImage = Instance.new("ImageLabel")
+avatarImage.Size = UDim2.new(1, -4, 1, -4)
+avatarImage.Position = UDim2.new(0, 2, 0, 2)
+avatarImage.BackgroundTransparency = 1
+avatarImage.Image = thumbnail
+avatarImage.Parent = avatarCircle
+
+local nameLabel = Instance.new("TextLabel")
+nameLabel.Size = UDim2.new(1, -70, 0, 22)
+nameLabel.Position = UDim2.new(0, 65, 0, 8)
+nameLabel.BackgroundTransparency = 1
+nameLabel.Text = Player.Name
+nameLabel.TextColor3 = Color3.fromRGB(200, 0, 255)
+nameLabel.TextSize = 13
+nameLabel.Font = Enum.Font.GothamBold
+nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+nameLabel.Parent = profileFrame
+
+local rankLabel = Instance.new("TextLabel")
+rankLabel.Size = UDim2.new(1, -70, 0, 18)
+rankLabel.Position = UDim2.new(0, 65, 0, 32)
+rankLabel.BackgroundTransparency = 1
+rankLabel.Text = "FATALITY | VIP"
+rankLabel.TextColor3 = Color3.fromRGB(150, 0, 200)
+rankLabel.TextSize = 10
+rankLabel.Font = Enum.Font.Gotham
+rankLabel.TextXAlignment = Enum.TextXAlignment.Left
+rankLabel.Parent = profileFrame
+
+-- ========== SILENT AIM + AUTO SHOOT (БЕЗ ВИДИМОГО НАВЕДЕНИЯ) ==========
+local function GetClosestTarget()
+    local closest = nil
+    local closestDistance = math.huge
+    
+    for _, target in ipairs(Players:GetPlayers()) do
+        if target ~= Player and target.Character and target.Character:FindFirstChild("Humanoid") and target.Character.Humanoid.Health > 0 then
+            local targetPos = target.Character:FindFirstChild("HumanoidRootPart")
+            if targetPos then
+                local screenPos, onScreen = Camera:WorldToViewportPoint(targetPos.Position)
+                if onScreen then
+                    local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+                    if distance < closestDistance then
+                        closestDistance = distance
+                        closest = target
+                    end
+                end
+            end
+        end
+    end
+    
+    return closest
+end
+
+local function GetHitChance()
+    local hitchance = Settings.Rage.Hitchance / 100
+    return math.random() <= hitchance
+end
+
+-- Silent Aim (НЕ двигает мышку, просто меняет направление пули)
+RunService.RenderStepped:Connect(function()
+    if Settings.Rage.Enabled then
+        local target = GetClosestTarget()
+        if target and GetHitChance() then
+            local targetPart = target.Character:FindFirstChild("HumanoidRootPart")
+            if targetPart then
+                local targetPos = targetPart.Position
+                if Settings.Rage.Multipoints then
+                    local offsets = {
+                        Vector3.new(0, 1, 0), Vector3.new(0, -1, 0), Vector3.new(0.5, 0.5, 0),
+                        Vector3.new(-0.5, 0.5, 0), Vector3.new(0.5, -0.5, 0), Vector3.new(-0.5, -0.5, 0)
+                    }
+                    targetPos = targetPos + offsets[math.random(1, #offsets)]
+                end
+                
+                -- Silent Aim: изменяем направление выстрела без движения мыши
+                local tool = Player.Character:FindFirstChildOfClass("Tool")
+                if tool then
+                    local args = { [1] = targetPos }
+                    local shootEvent = ReplicatedStorage:FindFirstChild("Shoot") or 
+                                      ReplicatedStorage:FindFirstChild("Fire") or 
+                                      ReplicatedStorage:FindFirstChild("Attack")
+                    if shootEvent then
+                        shootEvent:FireServer(unpack(args))
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- ========== VISUALS ФУНКЦИИ ==========
+local snowParts = {}
+
+local function CreateSnow()
+    for i = 1, Settings.Visuals.SnowAmount do
+        local part = Instance.new("Part")
+        part.Size = Vector3.new(0.2, 0.2, 0.2)
+        part.BrickColor = BrickColor.new("White")
+        part.Material = Enum.Material.Neon
+        part.CFrame = CFrame.new(
+            math.random(-Settings.Visuals.SnowRadius, Settings.Visuals.SnowRadius),
+            math.random(0, 50),
+            math.random(-Settings.Visuals.SnowRadius, Settings.Visuals.SnowRadius)
+        )
+        part.Parent = Workspace
+        table.insert(snowParts, part)
+        
+        game:GetService("RunService").Heartbeat:Connect(function()
+            if Settings.Visuals.Snow then
+                part.CFrame = part.CFrame + Vector3.new(0, -0.1, 0)
+                if part.Position.Y < 0 then
+                    part.CFrame = CFrame.new(
+                        math.random(-Settings.Visuals.SnowRadius, Settings.Visuals.SnowRadius),
+                        50,
+                        math.random(-Settings.Visuals.SnowRadius, Settings.Visuals.SnowRadius)
+                    )
+                end
+            end
+        end)
+    end
+end
+
+local function UpdateVisuals()
+    while wait(0.1) do
+        if Settings.Visuals.WorldModulation then
+            Lighting.ColorShift_Top = Settings.Visuals.WorldColor
+            Lighting.ColorShift_Bottom = Settings.Visuals.WorldColor
+            Lighting.OutdoorAmbient = Settings.Visuals.WorldColor
+            Lighting.Ambient = Settings.Visuals.WorldColor
+        else
+            Lighting.ColorShift_Top = Color3.fromRGB(0, 0, 0)
+            Lighting.ColorShift_Bottom = Color3.fromRGB(0, 0, 0)
+        end
+        
+        if Settings.Visuals.Fog then
+            Lighting.FogColor = Settings.Visuals.FogColor
+            Lighting.FogEnd = 500
+        else
+            Lighting.FogEnd = 100000
+        end
+        
+        Lighting.ClockTime = Settings.Visuals.ClockTime
+        Lighting.ExposureCompensation = Settings.Visuals.MapReflectance
+        
+        if Settings.Visuals.NoScopeEffects then
+            local tool = Player.Character:FindFirstChildOfClass("Tool")
+            if tool and tool:FindFirstChild("Scope") then
+                tool.Scope:Destroy()
+            end
+        end
+        
+        if Settings.Visuals.Crosshair then
+            if not Library.Crosshair then
+                Library.Crosshair = Instance.new("Frame")
+                Library.Crosshair.Size = UDim2.new(0, 3, 0, 18)
+                Library.Crosshair.Position = UDim2.new(0.5, -1.5, 0.5, -9)
+                Library.Crosshair.BackgroundColor3 = Settings.Visuals.CrosshairColor
+                Library.Crosshair.BorderSizePixel = 0
+                Library.Crosshair.Parent = Library.ScreenGui
+                
+                Library.Crosshair2 = Instance.new("Frame")
+                Library.Crosshair2.Size = UDim2.new(0, 18, 0, 3)
+                Library.Crosshair2.Position = UDim2.new(0.5, -9, 0.5, -1.5)
+                Library.Crosshair2.BackgroundColor3 = Settings.Visuals.CrosshairColor
+                Library.Crosshair2.BorderSizePixel = 0
+                Library.Crosshair2.Parent = Library.ScreenGui
+                
+                Library.Crosshair3 = Instance.new("Frame")
+                Library.Crosshair3.Size = UDim2.new(0, 4, 0, 4)
+                Library.Crosshair3.Position = UDim2.new(0.5, -2, 0.5, -2)
+                Library.Crosshair3.BackgroundColor3 = Settings.Visuals.CrosshairColor
+                Library.Crosshair3.BorderSizePixel = 0
+                Library.Crosshair3.Parent = Library.ScreenGui
+            else
+                Library.Crosshair.BackgroundColor3 = Settings.Visuals.CrosshairColor
+                Library.Crosshair2.BackgroundColor3 = Settings.Visuals.CrosshairColor
+                Library.Crosshair3.BackgroundColor3 = Settings.Visuals.CrosshairColor
+            end
+        else
+            if Library.Crosshair then
+                Library.Crosshair:Destroy()
+                Library.Crosshair2:Destroy()
+                Library.Crosshair3:Destroy()
+                Library.Crosshair = nil
+            end
+        end
+    end
+end
+
+local function JumpCircles()
+    Player.CharacterAdded:Connect(function(char)
+        local humanoid = char:WaitForChild("Humanoid")
+        humanoid.Jumping:Connect(function()
+            if Settings.Visuals.JumpCircles then
+                local circle = Instance.new("Part")
+                circle.Size = Vector3.new(6, 0.2, 6)
+                circle.CFrame = char.HumanoidRootPart.CFrame - Vector3.new(0, 2, 0)
+                circle.BrickColor = BrickColor.new("Bright violet")
+                circle.Material = Enum.Material.Neon
+                circle.Anchored = true
+                circle.CanCollide = false
+                circle.Parent = Workspace
+                game:GetService("Debris"):AddItem(circle, 1)
+            end
+        end)
+    end)
+end
+
+-- ========== ANTI AIM ==========
+local function AntiAim()
+    while wait() do
+        if Settings.AntiAim.Enabled and Player.Character then
+            local humanoid = Player.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.AutoRotate = false
+                local yaw = Settings.AntiAim.Yaw
+                if Settings.AntiAim.Jitter then
+                    yaw = yaw + math.random(-Settings.AntiA
