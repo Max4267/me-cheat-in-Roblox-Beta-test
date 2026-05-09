@@ -1,0 +1,381 @@
+-- =====================================================
+--  ████████╗██████╗ ██╗ ██████╗  ██████╗ ███████╗██████╗ 
+--  ╚══██╔══╝██╔══██╗██║██╔════╝ ██╔════╝ ██╔════╝██╔══██╗
+--     ██║   ██████╔╝██║██║  ███╗██║  ███╗█████╗  ██████╔╝
+--     ██║   ██╔══██╗██║██║   ██║██║   ██║██╔══╝  ██╔══██╗
+--     ██║   ██║  ██║██║╚██████╔╝╚██████╔╝███████╗██║  ██║
+--     ╚═╝   ╚═╝  ╚═╝╚═╝ ╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝
+-- =====================================================
+--         TRIGGERBOT XENO EDITION v2.0
+--         НУЛЕВАЯ ЗАДЕРЖКА | СТЕКЛЯННАЯ ТЕМА
+-- =====================================================
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+
+-- =====================================================
+-- НАСТРОЙКИ
+-- =====================================================
+
+local Config = {
+    Enabled = true,
+    TriggerKey = Enum.KeyCode.E,
+    AimKey = Enum.KeyCode.Q,
+    HitPart = "Head",
+    CheckTeam = true,
+    CheckAlive = true,
+    VisibleCheck = false,
+    Range = 1000,
+    FOV = 200,
+    Smoothness = 5,
+    TriggerDelay = 0,
+    TriggerOnKey = true,
+}
+
+-- =====================================================
+-- СТЕКЛЯННАЯ ТЕМА (MODERN GLASS UI)
+-- =====================================================
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "XenoTriggerBot"
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local function CreateGlassFrame(parent, size, position, transparency)
+    local frame = Instance.new("Frame")
+    frame.Size = size
+    frame.Position = position
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    frame.BackgroundTransparency = transparency or 0.15
+    frame.BorderSizePixel = 0
+    frame.ClipsDescendants = true
+    frame.Parent = parent
+    
+    -- Эффект размытия (стекло)
+    local blur = Instance.new("BlurEffect")
+    blur.Size = 8
+    blur.Parent = frame
+    
+    -- Углы (скругление)
+    local corners = Instance.new("UICorner")
+    corners.CornerRadius = UDim.new(0, 12)
+    corners.Parent = frame
+    
+    -- Обводка
+    local stroke = Instance.new("UIStroke")
+    stroke.Thickness = 1
+    stroke.Color = Color3.fromRGB(255, 255, 255)
+    stroke.Transparency = 0.8
+    stroke.Parent = frame
+    
+    return frame
+end
+
+local function CreateGlowButton(parent, text, position, size, color)
+    local btn = Instance.new("TextButton")
+    btn.Size = size
+    btn.Position = position
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 14
+    btn.Font = Enum.Font.GothamSemibold
+    btn.BackgroundColor3 = color or Color3.fromRGB(80, 80, 255)
+    btn.BackgroundTransparency = 0.2
+    btn.BorderSizePixel = 0
+    btn.Parent = parent
+    
+    local corners = Instance.new("UICorner")
+    corners.CornerRadius = UDim.new(0, 8)
+    corners.Parent = btn
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Thickness = 1
+    stroke.Color = Color3.fromRGB(255, 255, 255)
+    stroke.Transparency = 0.6
+    stroke.Parent = btn
+    
+    -- Эффект свечения при наведении
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundTransparency = 0.05}):Play()
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundTransparency = 0.2}):Play()
+    end)
+    
+    return btn
+end
+
+-- =====================================================
+-- ГЛАВНОЕ ОКНО (СТЕКЛЯННОЕ)
+-- =====================================================
+
+local MainFrame = CreateGlassFrame(ScreenGui, UDim2.new(0, 380, 0, 520), UDim2.new(0.5, -190, 0.5, -260), 0.1)
+
+-- Заголовок с градиентом
+local TitleFrame = Instance.new("Frame")
+TitleFrame.Size = UDim2.new(1, 0, 0, 45)
+TitleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+TitleFrame.BackgroundTransparency = 0.3
+TitleFrame.BorderSizePixel = 0
+TitleFrame.Parent = MainFrame
+
+local TitleCorners = Instance.new("UICorner")
+TitleCorners.CornerRadius = UDim.new(0, 12)
+TitleCorners.Parent = TitleFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 1, 0)
+Title.Text = "TRIGGERBOT XENO v2.0"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 18
+Title.Font = Enum.Font.GothamBold
+Title.BackgroundTransparency = 1
+Title.Parent = TitleFrame
+
+-- Кнопка закрытия
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -40, 0, 8)
+CloseBtn.Text = "✕"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+CloseBtn.TextSize = 16
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Parent = TitleFrame
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- =====================================================
+-- ЛЕВАЯ ПАНЕЛЬ (ВКЛАДКИ) - СТЕКЛЯННАЯ ТЕМА
+-- =====================================================
+
+local TabPanel = CreateGlassFrame(MainFrame, UDim2.new(0, 100, 1, -50), UDim2.new(0, 10, 0, 55), 0.2)
+
+local Tabs = {"MAIN", "AIM", "VISUAL", "SETTINGS"}
+local ActiveTab = "MAIN"
+
+local TabButtons = {}
+local TabContents = {}
+
+for i, tab in ipairs(Tabs) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 80, 0, 40)
+    btn.Position = UDim2.new(0, 10, 0, 10 + (i-1) * 50)
+    btn.Text = tab
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.TextSize = 12
+    btn.Font = Enum.Font.GothamSemibold
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+    btn.BackgroundTransparency = 0.3
+    btn.BorderSizePixel = 0
+    btn.Parent = TabPanel
+    
+    local corners = Instance.new("UICorner")
+    corners.CornerRadius = UDim.new(0, 8)
+    corners.Parent = btn
+    
+    TabButtons[tab] = btn
+    
+    -- Контент вкладок
+    local content = Instance.new("Frame")
+    content.Size = UDim2.new(1, -120, 1, -20)
+    content.Position = UDim2.new(0, 120, 0, 10)
+    content.BackgroundTransparency = 1
+    content.Visible = (tab == "MAIN")
+    content.Parent = MainFrame
+    TabContents[tab] = content
+    
+    btn.MouseButton1Click:Connect(function()
+        for _, t in pairs(Tabs) do
+            TabContents[t].Visible = false
+            TabButtons[t].BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+            TabButtons[t].BackgroundTransparency = 0.3
+        end
+        content.Visible = true
+        btn.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+        btn.BackgroundTransparency = 0.15
+        ActiveTab = tab
+    end
+end
+
+-- =====================================================
+-- КОНТЕНТ ВКЛАДКИ "MAIN"
+-- =====================================================
+
+local MainContent = TabContents["MAIN"]
+
+-- Статус
+local StatusFrame = CreateGlassFrame(MainContent, UDim2.new(1, -20, 0, 60), UDim2.new(0, 10, 0, 10), 0.2)
+local StatusText = Instance.new("TextLabel")
+StatusText.Size = UDim2.new(1, 0, 1, 0)
+StatusText.Text = "СТАТУС: АКТИВЕН"
+StatusText.TextColor3 = Color3.fromRGB(0, 255, 100)
+StatusText.TextSize = 16
+StatusText.Font = Enum.Font.GothamBold
+StatusText.BackgroundTransparency = 1
+StatusText.Parent = StatusFrame
+
+-- Кнопка включения/выключения
+local ToggleBtn = CreateGlowButton(MainContent, "ВЫКЛЮЧИТЬ", UDim2.new(0, 10, 0, 90), UDim2.new(1, -20, 0, 45), Color3.fromRGB(200, 60, 60))
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+-- Клавиша триггера
+local KeyFrame = CreateGlassFrame(MainContent, UDim2.new(1, -20, 0, 50), UDim2.new(0, 10, 0, 150), 0.2)
+local KeyLabel = Instance.new("TextLabel")
+KeyLabel.Size = UDim2.new(1, 0, 1, 0)
+KeyLabel.Text = "КЛАВИША ТРИГГЕРА: E"
+KeyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyLabel.TextSize = 14
+KeyLabel.Font = Enum.Font.Gotham
+KeyLabel.BackgroundTransparency = 1
+KeyLabel.Parent = KeyFrame
+
+-- =====================================================
+-- КОНТЕНТ ВКЛАДКИ "AIM"
+-- =====================================================
+
+local AimContent = TabContents["AIM"]
+
+local FOVSlider = CreateGlassFrame(AimContent, UDim2.new(1, -20, 0, 60), UDim2.new(0, 10, 0, 10), 0.2)
+local FOVLabel = Instance.new("TextLabel")
+FOVLabel.Size = UDim2.new(1, 0, 0, 20)
+FOVLabel.Text = "FOV РАДИУС: " .. Config.FOV
+FOVLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+FOVLabel.TextSize = 12
+FOVLabel.BackgroundTransparency = 1
+FOVLabel.Parent = FOVSlider
+
+local RangeSlider = CreateGlassFrame(AimContent, UDim2.new(1, -20, 0, 60), UDim2.new(0, 10, 0, 80), 0.2)
+local RangeLabel = Instance.new("TextLabel")
+RangeLabel.Size = UDim2.new(1, 0, 0, 20)
+RangeLabel.Text = "ДАЛЬНОСТЬ: " .. Config.Range
+RangeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+RangeLabel.TextSize = 12
+RangeLabel.BackgroundTransparency = 1
+RangeLabel.Parent = RangeSlider
+
+-- =====================================================
+-- КОНТЕНТ ВКЛАДКИ "VISUAL"
+-- =====================================================
+
+local VisualContent = TabContents["VISUAL"]
+
+local EspToggle = CreateGlowButton(VisualContent, "ESP ВКЛ", UDim2.new(0, 10, 0, 10), UDim2.new(1, -20, 0, 40), Color3.fromRGB(60, 150, 60))
+local FovToggle = CreateGlowButton(VisualContent, "FOV КРУГ ВКЛ", UDim2.new(0, 10, 0, 60), UDim2.new(1, -20, 0, 40), Color3.fromRGB(60, 150, 60))
+
+-- =====================================================
+-- ОСНОВНАЯ ЛОГИКА ТРИГГЕРБОТА
+-- =====================================================
+
+local function GetClosestEnemy()
+    local closest = nil
+    local closestDistance = Config.FOV
+    local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and (not Config.CheckTeam or player.Team ~= LocalPlayer.Team) then
+            local character = player.Character
+            if character then
+                local humanoid = character:FindFirstChild("Humanoid")
+                if humanoid and humanoid.Health > 0 then
+                    local part = character:FindFirstChild(Config.HitPart) or character:FindFirstChild("HumanoidRootPart")
+                    if part then
+                        local screenPos, onScreen = Camera:WorldToScreenPoint(part.Position)
+                        if onScreen then
+                            local distance = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                            if distance < closestDistance then
+                                closestDistance = distance
+                                closest = {player = player, part = part, screenPos = screenPos}
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return closest
+end
+
+-- Виртуальный клик мыши
+local function Click()
+    local VirtualInput = game:GetService("VirtualInputManager")
+    VirtualInput:SendMouseButtonEvent(0, 0, 0, true, Enum.UserInputType.MouseButton1, 1)
+    task.wait(Config.TriggerDelay / 1000)
+    VirtualInput:SendMouseButtonEvent(0, 0, 0, false, Enum.UserInputType.MouseButton1, 1)
+end
+
+-- ОСНОВНОЙ ЦИКЛ ТРИГГЕРБОТА
+RunService.RenderStepped:Connect(function()
+    if not Config.Enabled then return end
+    
+    local isKeyDown = not Config.TriggerOnKey or UserInputService:IsKeyDown(Config.TriggerKey)
+    if not isKeyDown then return end
+    
+    local target = GetClosestEnemy()
+    if target then
+        Click()
+    end
+end)
+
+-- =====================================================
+-- FOV КРУГ (ВИЗУАЛ)
+-- =====================================================
+
+local FovCircle = Instance.new("Frame")
+FovCircle.Size = UDim2.new(0, Config.FOV * 2, 0, Config.FOV * 2)
+FovCircle.Position = UDim2.new(0.5, -Config.FOV, 0.5, -Config.FOV)
+FovCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+FovCircle.BackgroundTransparency = 0.9
+FovCircle.BorderSizePixel = 0
+FovCircle.Visible = false
+FovCircle.Parent = ScreenGui
+
+local CircleCorner = Instance.new("UICorner")
+CircleCorner.CornerRadius = UDim.new(1, 0)
+CircleCorner.Parent = FovCircle
+
+local CircleStroke = Instance.new("UIStroke")
+CircleStroke.Thickness = 2
+CircleStroke.Color = Color3.fromRGB(0, 255, 0)
+CircleStroke.Transparency = 0.5
+CircleStroke.Parent = FovCircle
+
+-- =====================================================
+-- ОБРАБОТЧИКИ КНОПОК
+-- =====================================================
+
+local isEnabled = true
+ToggleBtn.MouseButton1Click:Connect(function()
+    isEnabled = not isEnabled
+    Config.Enabled = isEnabled
+    if isEnabled then
+        ToggleBtn.Text = "ВЫКЛЮЧИТЬ"
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+        StatusText.Text = "СТАТУС: АКТИВЕН"
+        StatusText.TextColor3 = Color3.fromRGB(0, 255, 100)
+    else
+        ToggleBtn.Text = "ВКЛЮЧИТЬ"
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(60, 150, 60)
+        StatusText.Text = "СТАТУС: ВЫКЛЮЧЕН"
+        StatusText.TextColor3 = Color3.fromRGB(255, 60, 60)
+    end
+end)
+
+FovToggle.MouseButton1Click:Connect(function()
+    FovCircle.Visible = not FovCircle.Visible
+    FovToggle.Text = FovCircle.Visible and "FOV КРУГ ВЫКЛ" or "FOV КРУГ ВКЛ"
+end)
+
+-- =====================================================
+-- АНИМАЦИЯ ПОЯВЛЕНИЯ
+-- =====================================================
+
+MainFrame.BackgroundTransparency = 1
+TweenService:Create(MainFrame, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
+
+print("[XENO] TRIGGERBOT ЗАГРУЖЕН | СТЕКЛЯННАЯ ТЕМА")
